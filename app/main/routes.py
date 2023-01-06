@@ -10,6 +10,7 @@ from peewee import DoesNotExist
 from app.main import main
 from app.main.forms import NameForm, GenerateDataForm
 from app.main.models import User
+from app.auth.models import UserAuth
 from app.handlers.get_qty_position_per_page import get_qty_position_per_page
 from utils.generate_data.main import main as generate_data
 from utils.generate_data.data import emails_data
@@ -82,7 +83,7 @@ def add_email():
 def show_emails(page=1):
     """Show user information"""
     qty_per_page = get_qty_position_per_page()
-    users = User.select()
+    users = UserAuth.select()
     pagination = Pagination(page=page, per_page=qty_per_page, total=users.count(), record_name='users')
     users = users.paginate(page, qty_per_page)
     return render_template(
@@ -105,13 +106,13 @@ def delete_emails():
             return redirect(url_for('main.show_emails'))
 
         for selector in selectors:
-            user = User.get(User.id == selector)
+            user = UserAuth.get(UserAuth.id == selector)
             message += f'{user.email} '
             user.delete_instance()
 
         page = int(request.form.get('page'))
         qty_per_page = get_qty_position_per_page()
-        if int(len(User.select())) % qty_per_page == 0:
+        if int(len(UserAuth.select())) % qty_per_page == 0:
             page -= 1
 
         flash(message)
@@ -123,7 +124,7 @@ def update(user_id):
     """Edit user's data."""
     form = NameForm()
     try:
-        user = User.get(User.id == user_id)
+        user = UserAuth.get(UserAuth.id == user_id)
     except DoesNotExist:
         flash(f'User with id: {user_id} not found. You can add user in this form.')
         return redirect(url_for('main.add_email'))
@@ -148,7 +149,7 @@ def edit(user_id):
     if form.validate_on_submit():
         name = form.name.data
         email = form.email.data
-        user = User.get(User.id == user_id)
+        user = UserAuth.get(UserAuth.id == user_id)
 
         if email == user.email and name == user.name:
             flash('Users name and email did not change.')
@@ -162,7 +163,7 @@ def edit(user_id):
             flash(message)
             return redirect(url_for('main.show_emails'))
 
-        elif not User.select().where(User.email == email):
+        elif not UserAuth.select().where(UserAuth.email == email):
             user.name = name
             user.email = email
             user.save()
