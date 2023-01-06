@@ -14,6 +14,7 @@ from app.auth.models import UserAuth
 from app.handlers.get_qty_position_per_page import get_qty_position_per_page
 from utils.generate_data.main import main as generate_data
 from utils.generate_data.data import emails_data
+from app.auth.utils import check_permissions
 
 
 @main.route('/')
@@ -97,6 +98,10 @@ def show_emails(page=1):
 @main.route('/delete/emails', methods=['POST'])
 def delete_emails():
     """Delete selected users"""
+    if not check_permissions(current_user):
+        flash('You don\'t have access to do it.', 'error')
+        return redirect(url_for('main.index'))
+
     if request.method == 'POST':
         message = 'Deleted: '
         selectors = list(map(int, request.form.getlist('selectors')))
@@ -122,6 +127,10 @@ def delete_emails():
 @main.route('/update/<user_id>')
 def update(user_id):
     """Edit user's data."""
+    if not check_permissions(current_user, user_id):
+        flash('You don\'t have access to edit this item.', 'error')
+        return redirect(url_for('main.index'))
+
     form = NameForm()
     try:
         user = UserAuth.get(UserAuth.id == user_id)

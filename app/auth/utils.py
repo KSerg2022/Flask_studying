@@ -1,5 +1,5 @@
 import hashlib
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 
 from app.auth.models import UserAuth
 
@@ -20,10 +20,14 @@ def load_user(user_id):
     return UserAuth.select().where(UserAuth.id == user_id).first()
 
 
-def check_permissions(current_user_id: int):
+def check_permissions(current_user_id: int, user_id=None):
+    if user_id is not None and current_user == UserAuth.select().where(UserAuth.id == user_id).first():
+        return True
+
     user = UserAuth.select().where(UserAuth.id == current_user_id).first()
     if user.role.name != 'admin':
         return False
+
     return True
 
 
