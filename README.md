@@ -23,3 +23,19 @@ source of weather information - https://openweathermap.org/
 - the ability to select cities by country,
 - the ability to watch the weather forecast for 5 days,
 - Ability to remove cities from the list.
+
+For start project.
+Create file .flaskenv in base dir with next info:
+
+FLASK_APP=web.py
+FLASK_DEBUG=1
+SECRET_KEY=
+ENVIRONMENT=development
+DATABASE=user.db
+APY_ID=
+FLASK_RUN_PORT=
+QTY_PER_PAGE=10
+
+You must add data after =:
+SECRET_KEY=, APY_ID=, FLASK_RUN_PORT=
+APY_ID you must get on site https://openweathermap.org/
