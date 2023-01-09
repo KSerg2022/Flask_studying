@@ -1,5 +1,6 @@
 # Flask_studying
 learning flask
+Site where you can view the current weather and a 5-day forecast for cities, you can create your own list of cities, view the weather for capitals.
 
 This application has:
 
