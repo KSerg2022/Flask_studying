@@ -11,6 +11,9 @@
             <th scope="col" class="text-center">temperature</th>
             <th scope="col" class="text-center">wind_speed</th>
             <th scope="col" class="text-center">img</th>
+            {% if add_to_user_list%}
+                <th scope="col" class="text-center">add to watch list</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -36,7 +39,18 @@
             <td class="text-center">{{ city[1].temperature }}</td>
             <td class="text-center">{{ city[1].wind_speed }}</td>
             <td class="warning text-center"><img src="{{ city[1].icon_url }}" alt="{{ city[1].icon_url }}" width="40"></td>
-        </tr>
+            {% if add_to_user_list%}
+                <td>
+                    {% if current_user in city[2] %}
+                        Already on the watchlist
+                    {% else %}
+                        <a href="{{ url_for('weather.add_city_to_user_list', city_id=city[0]) }}">
+                                <button type="button" class="btn btn-info">Add to my list</button>
+                            </a>
+                    {% endif %}
+                 </tr>
+            {% endif %}
+
     {% endfor %}
     </tbody>
 </table>

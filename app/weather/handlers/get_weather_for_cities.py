@@ -2,7 +2,7 @@
 from functools import lru_cache
 from peewee import DoesNotExist
 
-from app.weather.models import Capital, City
+from app.weather.models import Capital, City, UserCities
 from utils.weather.getting_weather import main as getting_weather
 
 
@@ -10,6 +10,7 @@ from utils.weather.getting_weather import main as getting_weather
 def get_weather_for_cities(cities):
     """Gets the weather for each city."""
     results = []
+    users_id_for_cities = []
     for city in cities:
         try:
             result = getting_weather(city.name, city.country.code)
@@ -33,4 +34,8 @@ def get_weather_for_cities(cities):
             city.delete()
 
         results.append(result)
-    return zip(cities, results)
+
+        users_id_for_city = [user.user_id for user in UserCities.select().where(UserCities.city_id == city)]
+        users_id_for_cities.append(users_id_for_city)
+
+    return zip(cities, results, users_id_for_cities)

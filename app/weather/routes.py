@@ -76,7 +76,7 @@ def add_city():
             user_city = UserCities(user_id=current_user, city_id=new_city)
             user_city.save()
 
-            message = f'City "{city.capitalize()}" just registered'
+            message = f'City "{city.capitalize()}" just registered and added to your watchlist'
 
         flash(message)
         return redirect(url_for('weather.index'))
@@ -103,7 +103,8 @@ def show_cities(page=1):
         'weather/show_cities.html',
         title='Show cities',
         cities=cities,
-        pagination=pagination
+        pagination=pagination,
+        add_to_user_list=True
         )
 
 
@@ -301,3 +302,21 @@ def show_user_cities(page=1):
         cities=cities,
         pagination=pagination
         )
+
+
+@weather.route('/add/user/city/<city_id>', methods=['POST', 'GET'])
+@login_required
+def add_city_to_user_list(city_id):
+    """Add city to user's watch list"""
+    city = City.select().where(City.id == city_id).first()
+
+    message = f'City "{city.name.capitalize()}" already in your watch list'
+    if UserCities.select().where(UserCities.city_id == city_id).first().user_id != current_user:
+
+        user_city = UserCities(user_id=current_user, city_id=city_id)
+        user_city.save()
+
+        message = f'City "{city.name.capitalize()}" just added to your watch list'
+
+    flash(message)
+    return redirect(url_for('weather.show_cities'))
