@@ -2,15 +2,17 @@
 from flask import render_template, redirect, url_for, flash, request
 from datetime import datetime
 
-from flask_login import login_required
+from flask_login import login_required, current_user
 from flask_paginate import Pagination
 from peewee import DoesNotExist, IntegrityError
 from random import randint
 
 from app.weather import weather
 from app.weather.forms import WeatherForm, AddCityForm, GenerateCapitalsForm
-from app.weather.models import Capital, City, Country
+from app.weather.models import Capital, City, Country, UserCities
+from app.auth.models import UserAuth
 from app.weather.handlers.get_weather_for_cities import get_weather_for_cities
+from app.weather.handlers.get_weather_for_user_cities import get_weather_for_user_cities
 from app.handlers.get_qty_position_per_page import get_qty_position_per_page
 
 from utils.weather.getting_weather import main as getting_weather
@@ -70,6 +72,10 @@ def add_city():
             country_id = Country.select().where(Country.code == country).first()
             new_city = City(country=country_id, name=city.capitalize())
             new_city.save()
+
+            user_city = UserCities(user_id=current_user, city_id=new_city)
+            user_city.save()
+
             message = f'City "{city.capitalize()}" just registered'
 
         flash(message)
@@ -266,3 +272,32 @@ def show_forecast_5days(city_name, country_code):
         country_name=country_name,
         forecast=forecast,
     )
+
+
+@weather.route('/show/user/cities/<int:page>', methods=['GET'])
+@weather.route('/show/user/cities')
+@login_required
+def show_user_cities(page=1):
+    """Show all cities."""
+    qty_per_page = get_qty_position_per_page()
+    # cities = UserCities.select().where(UserCities.user_id == current_user)
+    cities = UserCities.select(City).join(UserAuth).switch(UserCities).\
+        join(City).where(UserCities.user_id == current_user.id)
+
+    country_name = request.args.get('country_name')
+    if country_name:
+        country = Country.select().where(Country.name == country_name).first()
+        if country:
+            cities = UserCities.select(City).where(City.country == country).\
+                join(UserAuth).switch(UserCities).join(City).where(UserCities.user_id == current_user.id)
+            page = 1
+
+    pagination = Pagination(page=page, per_page=qty_per_page, total=cities.count(), record_name='cities')
+    cities = list(get_weather_for_user_cities(cities.paginate(page, qty_per_page)))
+
+    return render_template(
+        'weather/show_user_cities.html',
+        title='Show cities',
+        cities=cities,
+        pagination=pagination
+        )
