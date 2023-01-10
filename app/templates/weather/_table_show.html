@@ -38,7 +38,9 @@
             <td class="text-center">{{ city[1].sky }}</td>
             <td class="text-center">{{ city[1].temperature }}</td>
             <td class="text-center">{{ city[1].wind_speed }}</td>
-            <td class="warning text-center"><img src="{{ city[1].icon_url }}" alt="{{ city[1].icon_url }}" width="40"></td>
+            <td class="warning text-center">
+                <img src="{{ city[1].icon_url }}" alt="{{ city[1].icon_url }}" width="40">
+            </td>
             {% if add_to_user_list%}
                 <td>
                     {% if current_user in city[2] %}
@@ -48,9 +50,9 @@
                                 <button type="button" class="btn btn-info">Add to my list</button>
                             </a>
                     {% endif %}
-                 </tr>
+                 </td>
             {% endif %}
-
+        </tr>
     {% endfor %}
     </tbody>
 </table>

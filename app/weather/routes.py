@@ -77,6 +77,15 @@ def add_city():
             user_city.save()
 
             message = f'City "{city.capitalize()}" just registered and added to your watchlist'
+            flash(message)
+            return redirect(url_for('weather.index'))
+
+        city_in_db = City.select().where(City.name == city.capitalize()).first()
+        user_cities = UserCities.select().where(UserCities.user_id == current_user)
+        if city_in_db not in user_cities:
+            user_city = UserCities(user_id=current_user, city_id=city_in_db)
+            user_city.save()
+            message = f'City "{city.capitalize()}" added to your watchlist'
 
         flash(message)
         return redirect(url_for('weather.index'))

@@ -9,7 +9,7 @@
 {% block page_content %}
 
 <div class="page-header">
-  <h1>Cities.</h1>
+  <h1>{{ current_user.name }}'s cities.</h1>
 </div>
 {% include 'messages.html' %}
 
@@ -40,11 +40,7 @@
         </form>
 
     {% else %}
-        <p>You can fill out database.</p>
-        <form action="{{ url_for('weather.add_cities') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button type="submit" class="btn btn-primary">Add cities</button>
-        </form>
+        <p>Your watchlist is empty.</p>
     {% endif%}
 </div>
 
